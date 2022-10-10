@@ -7,6 +7,8 @@ const mongoose = require("mongoose");
 app.use(express.json());
 app.use(cors());
 
+// SCHEMA -> MODEL -> QUERY
+
 // schema design
 const productSchema = mongoose.Schema(
   {
@@ -31,7 +33,7 @@ const productSchema = mongoose.Schema(
       type: String,
       required: true,
       enum: {
-        value: ["kg", "litre", "pcs"],
+        values: ["kg", "litre", "pcs"],
         message: "unit value can't be {VALUE}, must be kg/litre/pcs",
       },
     },
@@ -55,7 +57,7 @@ const productSchema = mongoose.Schema(
       type: String,
       required: true,
       enum: {
-        value: ["in-stock", "out-of-stock", "discontinued"],
+        values: ["in-stock", "out-of-stock", "discontinued"],
         message: "status can't be {VALUE}",
       },
     },
@@ -67,27 +69,49 @@ const productSchema = mongoose.Schema(
     //   type: Date,
     //   default: Date.now,
     // },
-    supplier: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "supplier",
-    },
-    categories: [
-      {
-        name: {
-          type: String,
-          required: true,
-        },
-        _id: mongoose.Schema.Types.ObjectId,
-      },
-    ],
+    // supplier: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "supplier",
+    // },
+    // categories: [
+    //   {
+    //     name: {
+    //       type: String,
+    //       required: true,
+    //     },
+    //     _id: mongoose.Schema.Types.ObjectId,
+    //   },
+    // ],
   },
   {
     timestamps: true,
   }
 );
 
+// SCHEMA -> MODEL -> QUERY
+
+const Product = mongoose.model("Product", productSchema);
+
 app.get("/", (req, res) => {
   res.send("Route is working! YaY!");
+});
+
+// posting to database
+
+app.post("/api/v1/product", async (req, res, next) => {
+  try {
+    // save or create
+    const product = new Product(req.body);
+
+    const result = await product.save();
+    res.status(200).json({
+      status: "success",
+      message: "data inserted successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 module.exports = app;
